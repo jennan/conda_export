@@ -13,7 +13,8 @@ This script export a given environment with the following constraints:
 - pin the version of these packages,
 - also export pip installed packages with their version,
 - remove `defaults` channel,
-- add `conda-forge` channel.
+- add `conda-forge` channel,
+- do not export the prefix or name of the environment.
 """
 
 if len(sys.argv) != 3 or sys.argv[1] not in ["-p", "-n"]:
@@ -58,6 +59,9 @@ if "conda-forge" not in channels:
     channels.append("conda-forge")
 definition_history["channels"] = channels
 
+# remove any prefix or name to force user to set them
+del definition_history["prefix"]
+del definition_history["name"]
 
 # export to yaml by-hand (to avoid dependency on 3rd party package)
 def to_yaml(obj):
