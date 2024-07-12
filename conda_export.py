@@ -63,6 +63,7 @@ definition_history["channels"] = channels
 del definition_history["prefix"]
 del definition_history["name"]
 
+
 # export to yaml by-hand (to avoid dependency on 3rd party package)
 def to_yaml(obj):
     if isinstance(obj, list):
