@@ -51,7 +51,9 @@ for i, pkg in enumerate(definition_history["dependencies"]):
     if "=" in pkg:
         continue
     definition_history["dependencies"][i] = f"{pkg}={pkg_versions[pkg]}"
-definition_history["dependencies"].append({"pip": pip_pkgs})
+
+if pip_pkgs is not None:
+    definition_history["dependencies"].append({"pip": pip_pkgs})
 
 # remove defaults channel and add conda-forge
 channels = [chan for chan in definition_history["channels"] if chan != "defaults"]
