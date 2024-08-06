@@ -1,3 +1,5 @@
+# version 0.5.0
+
 import sys
 import json
 import textwrap
@@ -45,15 +47,32 @@ for pkg in definition_full["dependencies"]:
     pkg_name, pkg_version = pkg.split("=", maxsplit=1)
     pkg_versions[pkg_name] = pkg_version
 
-
 # inject pip packages and version in the historical definition
-for i, pkg in enumerate(definition_history["dependencies"]):
+dependencies = []
+
+for pkg in definition_history["dependencies"]:
     if "=" in pkg:
+        dependencies.append(pkg)
         continue
-    definition_history["dependencies"][i] = f"{pkg}={pkg_versions[pkg]}"
+
+    # handle case of package with a channel name
+    pkg_name = pkg.split("::", maxsplit=1)[1] if "::" in pkg else pkg
+
+    if pkg_name not in pkg_versions:
+        print(
+            f"WARNING: Conda package '{pkg}' listed in environment installation "
+            "history but not present in current environment. It will be removed "
+            "from the environment definition.",
+            file=sys.stderr,
+        )
+        continue
+
+    dependencies.append(f"{pkg}={pkg_versions[pkg_name]}")
 
 if pip_pkgs is not None:
-    definition_history["dependencies"].append({"pip": pip_pkgs})
+    dependencies.append({"pip": pip_pkgs})
+
+definition_history["dependencies"] = dependencies
 
 # remove defaults channel and add conda-forge
 channels = [chan for chan in definition_history["channels"] if chan != "defaults"]
